@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: data_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=mysecretkey
+    depends_on:
+      - mysql
+
+  enter-data:
+    build: ./enter-data
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - mysql
+
+  analytics-service:
+    build: ./analytics-service
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mysql
+      - mongodb
+
+  show-results:
+    build: ./show-results
+    ports:
+      - "3001:3001"
+    depends_on:
+      - auth-service
+      - mongodb
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  default:
+    driver: bridge
