@@ -1,5 +1,5 @@
 version: '3.8'
-
+name: '3495'
 services:
   mysql:
     image: mysql:latest
@@ -38,6 +38,9 @@ services:
     depends_on:
       - auth-service
       - mysql
+    environment:
+      MYSQL_HOST: mysql
+    entrypoint: ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "node", "server.js"]
 
   analytics-service:
     build: ./analytics-service

@@ -15,7 +15,19 @@ const db = mysql.createConnection({
 
 db.connect();
 
-app.post('/data', (req, res) => {
+app.get('/data', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+  // const { token } = req.headers;
+  // jwt.verify(token, process.env.SECRET_KEY, (err) => {
+  //   if (err) return res.sendStatus(403);  
+  //   res.sendFile(__dirname + '/index.html', () => {
+  //     res.setHeader('X-Auth-Token', token)
+  //   });
+  // });
+});
+
+
+app.post('/enterdata', (req, res) => {
   const { token, value } = req.body;
   jwt.verify(token, process.env.SECRET_KEY, (err) => {
     if (err) return res.sendStatus(403);

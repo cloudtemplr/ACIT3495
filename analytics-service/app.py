@@ -6,13 +6,13 @@ import numpy as np
 app = Flask(__name__)
 
 mysql_conn = mysql.connector.connect(
-    host='localhost',
+    host='3495-mysql',
     user='user',
     password='password',
     database='data_db'
 )
 
-mongo_client = pymongo.MongoClient('mongodb://localhost:27017/')
+mongo_client = pymongo.MongoClient('mongodb://mongodb:27017/')
 mongo_db = mongo_client['analytics_db']
 
 @app.route('/analyze', methods=['GET'])
