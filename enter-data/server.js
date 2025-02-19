@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 const db = mysql.createConnection({
-  host: 'mysql',
+  host: '3495-mysql',
   user: 'user',
   password: 'password',
   database: 'data_db'
@@ -16,16 +16,14 @@ const db = mysql.createConnection({
 db.connect();
 
 app.get('/data', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-  // const { token } = req.headers;
-  // jwt.verify(token, process.env.SECRET_KEY, (err) => {
-  //   if (err) return res.sendStatus(403);  
-  //   res.sendFile(__dirname + '/index.html', () => {
-  //     res.setHeader('X-Auth-Token', token)
-  //   });
-  // });
+  const { token } = req.headers;
+  jwt.verify(token, process.env.SECRET_KEY, (err) => {
+    if (err) return res.sendStatus(403);  
+    res.sendFile(__dirname + '/index.html', () => {
+      res.setHeader('X-Auth-Token', token)
+    });
+  });
 });
-
 
 app.post('/enterdata', (req, res) => {
   const { token, value } = req.body;
