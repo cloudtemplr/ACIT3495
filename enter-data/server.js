@@ -13,7 +13,21 @@ const db = mysql.createConnection({
   database: 'data_db'
 });
 
-db.connect();
+db.connect(() => {
+
+  console.log('Connected to MySQL');
+  
+  // Create table if it doesn't exist
+  db.query(
+    `CREATE TABLE IF NOT EXISTS records (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      temperature DECIMAL(5,2),
+      heartrate INT,
+      weight DECIMAL(5,2),
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`
+  );
+});
 
 app.get('/data', (req, res) => {
   const { token } = req.headers;
@@ -29,7 +43,7 @@ app.post('/enterdata', (req, res) => {
   const { token, value } = req.body;
   jwt.verify(token, process.env.SECRET_KEY, (err) => {
     if (err) return res.sendStatus(403);
-    db.query('INSERT INTO records (value) VALUES (?)', [value], (err) => {
+    db.query('INSERT INTO records (temperature, heartrate, weight) VALUES (?, ?, ?)', [value.temperature, value.heartrate, value.weight], (err) => {
       if (err) return res.sendStatus(500);
       res.sendStatus(201);
     });
