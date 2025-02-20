@@ -56,17 +56,18 @@
         async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
-            const response = await fetch('/authenticate', {
+
+            const response = await fetch('http://localhost:5000/authenticate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
+                credentials: 'include'
             });
-            
+
             const result = await response.json();
+
             if (response.status === 200) {
-                localStorage.setItem('token', result.access_token);
-                window.location.href = 'http://localhost:3000/data';
+                window.location.href = 'http://localhost:3000/data'; 
             } else {
                 document.getElementById('message').textContent = result.msg;
             }

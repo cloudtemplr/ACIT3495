@@ -1,4 +1,4 @@
-version: '3.8'
+version: '4.0'
 name: '3495'
 services:
   mysql:
@@ -13,6 +13,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - default
 
   mongodb:
     image: mongo:latest
@@ -21,6 +23,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - default
 
   auth-service:
     build: ./auth-service
@@ -30,6 +34,9 @@ services:
       - SECRET_KEY=mysecretkey
     depends_on:
       - mysql
+    entrypoint: ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "python", "app.py"]
+    networks:
+      - default
 
   enter-data:
     build: ./enter-data
@@ -40,7 +47,9 @@ services:
       - mysql
     environment:
       MYSQL_HOST: mysql
-    entrypoint: ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "node", "server.js"]
+    entrypoint: ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "npm", "start"]
+    networks:
+      - default
 
   analytics-service:
     build: ./analytics-service
@@ -49,6 +58,9 @@ services:
     depends_on:
       - mysql
       - mongodb
+    entrypoint: ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "python", "app.py"]
+    networks:
+      - default
 
   show-results:
     build: ./show-results
@@ -57,6 +69,10 @@ services:
     depends_on:
       - auth-service
       - mongodb
+    entrypoint: ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "node", "server.js"]
+    networks:
+      - default
+    
 
 volumes:
   mysql_data:
