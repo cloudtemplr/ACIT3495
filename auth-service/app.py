@@ -43,8 +43,6 @@ def login():
 
     if data['username'] == 'admin' and data['password'] == 'password':
         token = create_access_token(identity=data['username']) 
-        cursor.execute("INSERT INTO tokens (username, token) VALUES (%s, %s)", (data['username'], token))
-        db.commit()  
         response = make_response(jsonify({'msg': 'Logged in successfully'}))
         response.set_cookie('token', token, httponly=True, secure=False, max_age=3600)
         

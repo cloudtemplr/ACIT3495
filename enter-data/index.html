@@ -107,22 +107,6 @@
                 document.getElementById('message').textContent = 'Failed to import data. Please try again.';
                 }
 
-            await fetch('http://localhost:5001/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(analysisData => {
-                console.log('Analysis Result:', analysisData);
-                res.status(200).json({ msg: 'Data stored and analysis triggered', analysis: analysisData });
-            })
-            .catch(error => {
-                console.error('Error calling analytics service:', error);
-                res.status(500).json({ msg: 'Data stored, but analysis failed' });
-            });
-
             }
             function redirectToResults() {
                 window.location.href = 'http://localhost:3001/results';

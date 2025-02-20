@@ -5,6 +5,8 @@ require('dotenv').config();
 const app = express();
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const axios = require('axios');
+
 
 app.use(cookieParser());
 app.use(express.json());
@@ -80,9 +82,18 @@ app.post('/enterdata', (req, res) => {
                 console.error('Error storing data:', err.sqlMessage);
                 return res.status(500).json({ msg: 'Error storing data' });
             }
-
             res.status(200).json({ msg: 'Data stored successfully' });
         });
+        axios.get('http://localhost:5001/analyze', {
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          withCredentials: true // Sends cookies along with the request
+       })
+       .catch(error => {
+          console.error('Error calling analytics service:', error);
+       });
+      
     });
 });
 

@@ -15,58 +15,96 @@ app.use(express.static('public')); // Serve static files like the HTML, CSS, JS
 
 
 // Serve the HTML page at the /results route
-app.get('/results', (req, res) => {
+app.get('/results', async (req, res) => {
   const token = req.cookies.token;
   
-    if (!token) {
-      return res.status(403).json({ msg: 'No token provided' });
+  if (!token) {
+    return res.status(403).json({ msg: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ msg: 'Invalid token' });
     }
-  
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ msg: 'Invalid token' });
-      }
-  
-      res.sendFile(__dirname + '/index.html');  
-    });
-});
 
-// API route to fetch analyzed data
-app.get('/show-results', async (req, res) => {
-  const token = req.cookies.token;
-  
-    if (!token) {
-      return res.status(403).json({ msg: 'No token provided' });
+    // Connect to MongoDB and fetch results
+    await client.connect();
+    const db = client.db('analytics_db');
+    const results = await db.collection('results').find().toArray();
+    console.log(results); // Debugging log
+    
+    if (results.length === 0) {
+      return res.status(404).json({ msg: 'No analysis data found' });
     }
-  
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ msg: 'Invalid token' });
-      }
-    });
-  await client.connect();
-  const db = client.db('analytics_db');
-  const results = await db.collection('results').find().toArray();
+    const analyticsData = results[0];
+    // Render the HTML page with the analytics data embedded
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Show Results</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh;
+                  background-color: #f4f4f4;
+              }
+              .container {
+                  background: white;
+                  padding: 20px;
+                  border-radius: 10px;
+                  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                  text-align: center;
+                  width: 300px;
+              }
+              button {
+                  width: calc(100% - 20px);
+                  padding: 10px;
+                  margin: 10px 0;
+                  border: 1px solid #ccc;
+                  border-radius: 5px;
+                  background-color: #28a745;
+                  color: white;
+                  cursor: pointer;
+              }
+              button:hover {
+                  background-color: #218838;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <h2>Show Results</h2>
+              <h3>Temperature Analytics:</h3>
+              <p>Min: ${analyticsData.temperature.t_min}</p>
+              <p>Max: ${analyticsData.temperature.t_max}</p>
+              <p>Avg: ${analyticsData.temperature.t_avg}</p>
+              <h3>Heart Rate Analytics:</h3>
+              <p>Min: ${analyticsData.heart_rate.h_min}</p>
+              <p>Max: ${analyticsData.heart_rate.h_max}</p>
+              <p>Avg: ${analyticsData.heart_rate.h_avg}</p>
+              <h3>Weight Analytics:</h3>
+              <p>Min: ${analyticsData.weight.w_min}</p>
+              <p>Max: ${analyticsData.weight.w_max}</p>
+              <p>Avg: ${analyticsData.weight.w_avg}</p>
+              <button onclick="redirectToEnterData()">Enter Data</button>
+          </div>
 
-  const analyticsData = {
-    temperature: {
-      min: Math.min(...results.map(r => r.temperature)),
-      max: Math.max(...results.map(r => r.temperature)),
-      avg: results.reduce((acc, r) => acc + r.temperature, 0) / results.length,
-    },
-    heart_rate: {
-      min: Math.min(...results.map(r => r.heart_rate)),
-      max: Math.max(...results.map(r => r.heart_rate)),
-      avg: results.reduce((acc, r) => acc + r.heart_rate, 0) / results.length,
-    },
-    weight: {
-      min: Math.min(...results.map(r => r.weight)),
-      max: Math.max(...results.map(r => r.weight)),
-      avg: results.reduce((acc, r) => acc + r.weight, 0) / results.length,
-    },
-  };
-
-  res.json(analyticsData);
+          <script>
+              // Redirect to the Enter Data page
+              function redirectToEnterData() {
+                  window.location.href = 'http://localhost:3000/data';
+              }
+          </script>
+      </body>
+      </html>
+    `);
+  });
 });
 
 app.listen(3001, () => console.log('Show Results service running on port 3001'));
