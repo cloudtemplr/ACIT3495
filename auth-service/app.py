@@ -8,10 +8,10 @@ app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'mysecretkey')
 jwt_manager = JWTManager(app)
 
 db = mysql.connector.connect(
-    host='mysql',
-    user='user',
-    password='password',
-    database='data_db'   
+    host=os.environ.get('DB_HOST'),
+    user=os.environ.get('DB_USER'),
+    password=os.environ.get('DB_PASSWORD'),
+    database=os.environ.get('DB_NAME')
 )
 cursor = db.cursor()
 
