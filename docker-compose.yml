@@ -1,4 +1,3 @@
-version: '4.0'
 name: '3495'
 services:
   mysql:
