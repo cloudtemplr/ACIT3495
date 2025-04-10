@@ -25,9 +25,19 @@ db.connect((err) => {
   }
   
   console.log('Connected to MySQL');
+});
   
-  app.get('/data', (req, res) => {
-    const token = req.cookies.token;
+app.get('/data', (req, res) => {
+  const token = req.cookies.token;
+  
+  if (!token) {
+    return res.status(403).json({ msg: 'No token provided' });
+  }
+  
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ msg: 'Invalid token' });
+    }
     db.query(
       `CREATE TABLE IF NOT EXISTS records (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,22 +51,10 @@ db.connect((err) => {
           return;
         }
         console.log('Table is ready');
-      }
-    );
-  });
-    
-    if (!token) {
-      return res.status(403).json({ msg: 'No token provided' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ msg: 'Invalid token' });
-    }
-
+      });
+    });
     res.sendFile(__dirname + '/index.html');  
   });
-});
 
 app.post('/enterdata', (req, res) => {
     const token = req.cookies.token;
@@ -83,7 +81,7 @@ app.post('/enterdata', (req, res) => {
                 return res.status(500).json({ msg: 'Error storing data' });
             }
             res.status(200).json({ msg: 'Data stored successfully' });
-        });      
+        });   
     });
 });
 

@@ -91,7 +91,7 @@
                 };
 
             console.log(value);
-            const response = await fetch('http://localhost:3000/enterdata', {
+            const response = await fetch('/enterdata', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ value })  // Send token and value correctly
@@ -109,7 +109,7 @@
 
             }
             function redirectToResults() {
-                window.location.href = 'http://localhost:3001/results';
+                window.location.href = '/results';
             }
     </script>
 </body>

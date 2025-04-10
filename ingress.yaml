@@ -2,39 +2,50 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: app-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-  - host: a5b924505ac7c49788e4d4fc8995a936-1357467745.us-west-2.elb.amazonaws.com
-    http:
-      paths:
-      - path: /login
-        pathType: Prefix
-        backend:
-          service:
-            name: auth-service
-            port:
-              number: 80
-      - path: /analyze
-        pathType: Prefix
-        backend:
-          service:
-            name: analytics-service
-            port:
-              number: 80
-      - path: /enter
-        pathType: Prefix
-        backend:
-          service:
-            name: enter-data
-            port:
-              number: 80
-      - path: /results
-        pathType: Prefix
-        backend:
-          service:
-            name: show-results
-            port:
-              number: 80
+    - http:
+        paths:
+        - path: /login
+          pathType: Prefix
+          backend:
+            service:
+              name: auth-service
+              port:
+                number: 80
+        - path: /authenticate
+          pathType: Prefix
+          backend:
+            service:
+              name: auth-service
+              port:
+                number: 80
+        - path: /analyze
+          pathType: Prefix
+          backend:
+            service:
+              name: analytics-service
+              port:
+                number: 80
+        - path: /data
+          pathType: Prefix
+          backend:
+            service:
+              name: enter-data
+              port:
+                number: 80
+        - path: /enterdata
+          pathType: Prefix
+          backend:
+            service:
+              name: enter-data
+              port:
+                number: 80
+        - path: /results
+          pathType: Prefix
+          backend:
+            service:
+              name: show-results
+              port:
+                number: 80
