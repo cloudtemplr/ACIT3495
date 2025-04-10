@@ -3,3 +3,5 @@ pymongo
 mysql-connector-python
 numpy
 python-dotenv
+flask-jwt-extended
+flask-cors

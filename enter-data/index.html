@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 0; 
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            box-sizing: border-box; 
+        }
+        input:focus, button:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 16px; 
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #message {
+            color: red;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Import Data</h2>
+        <div class="input-group">
+            <input type="text" id="temperature" placeholder="Insert Temperature" required>
+        </div>
+        <div class="input-group">
+            <input type="text" id="heartrate" placeholder="Insert Heart Rate" required>
+        </div>
+        <div class="input-group">
+            <input type="text" id="weight" placeholder="Insert Weight" required>
+        </div>
+        <button onclick="importData()">Submit</button>
+        <button onclick="redirectToResults()">View Analytics</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        async function importData() {
+            const value = {
+                temperature: parseFloat(document.getElementById('temperature').value),
+                heartrate: parseInt(document.getElementById('heartrate').value, 10),
+                weight: parseFloat(document.getElementById('weight').value)
+                };
+
+            console.log(value);
+            const response = await fetch('http://localhost:3000/enterdata', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ value })  // Send token and value correctly
+            });
+
+            if (response.status === 200) {
+                alert('Data imported successfully!');
+                document.getElementById('temperature').value = '';
+                document.getElementById('heartrate').value = '';
+                document.getElementById('weight').value = '';
+                document.getElementById('message').textContent = '';
+            } else {
+                document.getElementById('message').textContent = 'Failed to import data. Please try again.';
+                }
+
+            }
+            function redirectToResults() {
+                window.location.href = 'http://localhost:3001/results';
+            }
+    </script>
+</body>
+</html>
